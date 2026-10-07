@@ -1,0 +1,17 @@
+{
+    "model": {
+        "name": "HunyuanImage 3.0 Instruct-Distil W4A8",
+        "architecture": "hunyuan_image_3_instruct_distil",
+        "description": "Tencent HunyuanImage-3.0 Instruct-Distil, 80B mixture-of-experts (13B active per token) in W4A8. 8-step text-to-image, image editing and multi-image fusion (up to 3 Reference Images). Needs about 50 GB of free system RAM; 12 GB of VRAM or more. Weights under the Tencent Hunyuan Community License.",
+        "URLs": [
+            "https://huggingface.co/PedroMarinhoDev/HunyuanImage-3.0-Instruct-Distil-ComfyUI/resolve/main/hunyuan_image_3_instruct_distil_w4a8.safetensors"
+        ]
+    },
+    "prompt": "A red fox sitting in a snowy birch forest at dawn, soft golden light, photorealistic, shallow depth of field.",
+    "image_mode": 1,
+    "resolution": "1024x1024",
+    "num_inference_steps": 8,
+    "embedded_guidance_scale": 2.5,
+    "batch_size": 1,
+    "video_prompt_type": ""
+}

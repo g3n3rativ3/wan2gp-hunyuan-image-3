@@ -1,0 +1,13 @@
+{
+  "name": "HunyuanImage 3.0 Instruct-Distil",
+  "author": "Port of PedroMarinhoDev/ComfyUI-HunyuanImage3 for WanGP",
+  "version": "1.0.0",
+  "description": "Tencent HunyuanImage-3.0 Instruct-Distil (80B MoE, W4A8, 8 steps): text to image, image editing and multi-image fusion with up to 3 Reference Images. Weights are downloaded automatically on first generation.",
+  "type": ["model"],
+  "model_handlers": [".models.hy3_handler"],
+  "defaults": "./defaults",
+  "profiles": "./profiles",
+  "date": "2026-10-07",
+  "wan2gp_version": "",
+  "url": ""
+}

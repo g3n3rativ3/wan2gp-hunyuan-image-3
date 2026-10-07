@@ -1,0 +1,5 @@
+{
+    "num_inference_steps": 8,
+    "embedded_guidance_scale": 2.5,
+    "help": "The settings the Instruct-Distil checkpoint was distilled with: 8 steps, embedded guidance 2.5 (no CFG pass)."
+}

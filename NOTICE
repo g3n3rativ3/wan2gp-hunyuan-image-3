@@ -1,0 +1,25 @@
+wan2gp-hunyuan-image-3 — HunyuanImage-3.0 Instruct-Distil model plugin for WanGP
+Licensed under the GNU General Public License v3.0 (see LICENSE).
+
+This plugin is a modified port of ComfyUI-HunyuanImage3
+(https://github.com/PedroMarinhoDev/ComfyUI-HunyuanImage3), Copyright (C) 2026 PedroMarinhoDev, GPL-3.0.
+Modifications: rewritten for WanGP's model-plugin API, mmgp offloading and WanGP's W4A8 kernels; ComfyUI
+operations, attention, rope and VAE/vision loaders replaced with plain PyTorch; prompt rewriting and
+Spectrum removed; tiled VAE encode/decode added.
+
+Parts of the model, VAE, tokenizer and pipeline code are ported from Tencent's HunyuanImage-3.0 reference
+implementation (https://github.com/Tencent-Hunyuan/HunyuanImage-3.0) and remain subject to the Tencent
+Hunyuan Community License Agreement (see LICENSE-TENCENT-HUNYUAN). That agreement does not apply in the
+European Union, the United Kingdom or South Korea. The ported files were modified.
+
+models/tencent/config.json and models/tencent/tokenizer.json are Tencent's own files, unmodified, under the
+same agreement.
+
+Tencent Hunyuan is licensed under the Tencent Hunyuan Community License Agreement, Copyright © 2025 Tencent.
+All Rights Reserved. The trademark rights of "Tencent Hunyuan" are owned by Tencent or its affiliate.
+
+The SigLIP2 vision tower code (models/hy3_vision.py) follows the Hugging Face transformers implementation
+(Apache-2.0). The W4A8 storage format is comfy_kitchen's AsymW4A8Int8Layout (Apache-2.0, Comfy Org).
+
+The HunyuanImage-3.0 model weights are not part of this plugin; they are downloaded from Hugging Face and
+distributed under the Tencent Hunyuan Community License Agreement.

@@ -1,0 +1,2 @@
+# Nothing to install: the plugin only uses packages WanGP already provides
+# (torch, tokenizers, accelerate, mmgp, and WanGP's own W4A8 kernels).
