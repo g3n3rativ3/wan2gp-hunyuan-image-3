@@ -48,7 +48,13 @@ If you already have these files (for ComfyUI, for instance), copy or link them t
 
 Write a natural-language prompt, in English or Chinese, and generate. The default settings are the ones the model was distilled with: **8 steps** and **Embedded Guidance 2.5**.
 
-**Image size.** The model was trained around 1 megapixel. The *Resolution* list offers its 37 native sizes, from 2048×512 to 512×2048. Custom sizes up to about 1536×1536 work. Beyond that the image degrades: generate at 1024, then upscale with WanGP's post-processing.
+**Image size.** The model was trained around 1 megapixel. The *Resolution* list is split into three categories:
+
+- **720p**: the model's 37 native sizes (about 1 Mpx, from 2048×512 to 512×2048). Best quality.
+- **1080p**: larger sizes, up to 1440×1440 or 1920×1088. The rope is rescaled automatically, but prompt adherence weakens as the size moves away from 1 Mpx, and each step is slower (up to about twice the image tokens).
+- **540p**: smaller sizes (about 0.5 Mpx) for faster drafts. They are outside the training range, so quality may drop.
+
+Custom sizes up to about 1536×1536 work. Beyond that the image degrades: generate at 1024, then upscale with WanGP's post-processing.
 
 ### Editing and fusion with Reference Images
 

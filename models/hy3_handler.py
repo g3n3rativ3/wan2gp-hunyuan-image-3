@@ -25,6 +25,45 @@ def _native_resolutions():
     return choices
 
 
+# Extra sizes outside the model's native ~1 Mpx table. WanGP files resolutions in categories by pixel
+# count: 1080p is (1024x1024, 1920x1088], 540p is (832x624, 960x544]. The 1080p sizes stay below
+# ~1536x1536, where the rope rescaling still holds; the 540p ones are faster but outside training.
+EXTRA_RESOLUTIONS_1080P = [
+    ("1440x1440 (1:1)", "1440x1440"),
+    ("1280x1280 (1:1)", "1280x1280"),
+    ("1920x1088 (16:9)", "1920x1088"),
+    ("1088x1920 (9:16)", "1088x1920"),
+    ("1664x1248 (4:3)", "1664x1248"),
+    ("1248x1664 (3:4)", "1248x1664"),
+    ("1536x1024 (3:2)", "1536x1024"),
+    ("1024x1536 (2:3)", "1024x1536"),
+    ("1920x832 (21:9)", "1920x832"),
+    ("832x1920 (9:21)", "832x1920"),
+]
+
+EXTRA_RESOLUTIONS_540P = [
+    ("960x544 (16:9)", "960x544"),
+    ("544x960 (9:16)", "544x960"),
+    ("928x560 (5:3)", "928x560"),
+    ("560x928 (3:5)", "560x928"),
+    ("880x592 (3:2)", "880x592"),
+    ("592x880 (2:3)", "592x880"),
+    ("816x640 (5:4)", "816x640"),
+    ("640x816 (4:5)", "640x816"),
+    ("1088x480 (9:4)", "1088x480"),
+    ("480x1088 (4:9)", "480x1088"),
+]
+
+
+def _all_resolutions():
+    choices, seen = [], set()
+    for label, value in EXTRA_RESOLUTIONS_1080P + _native_resolutions() + EXTRA_RESOLUTIONS_540P:
+        if value not in seen:
+            seen.add(value)
+            choices.append((label, value))
+    return choices
+
+
 def _gcd(a, b):
     while b:
         a, b = b, a % b
@@ -78,7 +117,7 @@ class family_handler:
             "fit_into_canvas_image_refs": 0,
             "vae_block_size": 16,
             "image_batch_size_max": 8,
-            "resolutions": [[label, value] for label, value in _native_resolutions()],
+            "resolutions": [[label, value] for label, value in _all_resolutions()],
             "image_ref_choices": {
                 "choices": [
                     ("None (Text to Image)", ""),
