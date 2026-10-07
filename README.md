@@ -1,127 +1,127 @@
-# HunyuanImage 3.0 Instruct-Distil pour WanGP
+# HunyuanImage 3.0 Instruct-Distil for WanGP
 
-Plugin de modèle pour [WanGP](https://github.com/deepbeepmeep/Wan2GP) qui ajoute **HunyuanImage-3.0 Instruct-Distil** de Tencent.
+A model plugin for [WanGP](https://github.com/deepbeepmeep/Wan2GP) that adds Tencent's **HunyuanImage-3.0 Instruct-Distil**.
 
-Il s'agit d'un *mixture-of-experts* de 80 milliards de paramètres, dont 13 milliards actifs par token, utilisé ici en poids **W4A8**. Le modèle sait faire trois choses :
+It is an 80-billion-parameter *mixture-of-experts* model, with 13 billion parameters active per token, used here with **W4A8** weights. The model does three things:
 
-- **texte vers image** en 8 étapes ;
-- **édition d'image** (« transforme cette photo en aquarelle ») ;
-- **fusion multi-images**, avec jusqu'à 3 images de référence.
+- **text to image** in 8 steps;
+- **image editing** ("turn this photo into a watercolor");
+- **multi-image fusion**, with up to 3 Reference Images.
 
-Ce plugin est un portage du pack ComfyUI [PedroMarinhoDev/ComfyUI-HunyuanImage3](https://github.com/PedroMarinhoDev/ComfyUI-HunyuanImage3). Seule la version **Instruct-Distil (8 étapes)** est portée. La réécriture de prompt (*prompt rewriting*) n'est pas incluse.
+This plugin is a port of the ComfyUI pack [PedroMarinhoDev/ComfyUI-HunyuanImage3](https://github.com/PedroMarinhoDev/ComfyUI-HunyuanImage3). Only the **Instruct-Distil (8 steps)** version is ported. Prompt rewriting is not included.
 
-## Matériel nécessaire
+## Requirements
 
 | | |
 |---|---|
-| GPU | NVIDIA, 12 Go de VRAM ou plus |
-| RAM système | environ **50 Go libres** : les poids sont gardés en RAM puis envoyés au GPU couche par couche à chaque étape |
-| Disque | environ 46 Go (44 Go de transformer, plus le VAE et la tour de vision) |
+| GPU | NVIDIA, 12 GB of VRAM or more |
+| System RAM | about **50 GB free**: the weights stay in RAM and are streamed to the GPU layer by layer at every step |
+| Disk | about 50 GB (44 GB transformer, plus the VAE and the vision tower) |
 
-Le modèle est limité par le transfert des poids, pas par le calcul. La quantité de RAM et la vitesse du bus PCIe comptent plus que la taille du GPU.
+The model is bound by weight transfers, not by compute. The amount of RAM and the PCIe bus speed matter more than the size of the GPU.
 
 ## Installation
 
-1. Décompressez l'archive dans le dossier `plugins/` de WanGP. Vous devez obtenir `plugins/wan2gp-hunyuan-image-3/plugin_info.json`.
-2. Lancez WanGP, ouvrez l'onglet **Plugins**, cochez **HunyuanImage 3.0 Instruct-Distil**, puis cliquez sur *Save Settings*.
-3. **Redémarrez WanGP.** Le modèle apparaît dans la famille **HunyuanImage 3.0**.
+1. Unzip the archive into WanGP's `plugins/` folder. You should get `plugins/wan2gp-hunyuan-image-3/plugin_info.json`.
+2. Start WanGP, open the **Plugins** tab, tick **HunyuanImage 3.0 Instruct-Distil**, then click *Save Settings*.
+3. **Restart WanGP.** The model appears in the **HunyuanImage 3.0** family.
 
-Rien n'est à installer avec pip : le plugin n'utilise que des paquets déjà présents dans WanGP.
+Nothing needs to be installed with pip: the plugin only uses packages WanGP already provides.
 
-## Téléchargement automatique des modèles
+## Automatic model download
 
-Au **premier rendu**, WanGP télécharge les fichiers depuis [PedroMarinhoDev/HunyuanImage-3.0-Instruct-Distil-ComfyUI](https://huggingface.co/PedroMarinhoDev/HunyuanImage-3.0-Instruct-Distil-ComfyUI). Ils sont placés dans le dossier de modèles choisi dans **Configuration** :
+On the **first generation**, WanGP downloads the files from [PedroMarinhoDev/HunyuanImage-3.0-Instruct-Distil-ComfyUI](https://huggingface.co/PedroMarinhoDev/HunyuanImage-3.0-Instruct-Distil-ComfyUI). They go into the models folder set in **Configuration**:
 
-| Fichier | Emplacement |
+| File | Location |
 |---|---|
-| `hunyuan_image_3_instruct_distil_w4a8.safetensors` (≈ 44 Go) | `<dossier modèles>/` |
-| `vae/hunyuan_image_3_vae_fp16.safetensors` | `<dossier modèles>/hunyuan_image_3/vae/` |
-| `clip_vision/hunyuan_image_3_instruct_distil_siglip2_so400m_naflex.safetensors` | `<dossier modèles>/hunyuan_image_3/clip_vision/` |
+| `hunyuan_image_3_instruct_distil_w4a8.safetensors` (≈ 44 GB) | `<models folder>/` |
+| `vae/hunyuan_image_3_vae_fp16.safetensors` | `<models folder>/hunyuan_image_3/vae/` |
+| `clip_vision/hunyuan_image_3_instruct_distil_siglip2_so400m_naflex.safetensors` | `<models folder>/hunyuan_image_3/clip_vision/` |
 
-Le `config.json` et le `tokenizer.json` de Tencent sont livrés avec le plugin, dans `models/tencent/`.
+Tencent's `config.json` and `tokenizer.json` ship with the plugin, in `models/tencent/`.
 
-Si vous avez déjà ces fichiers (pour ComfyUI par exemple), copiez-les ou liez-les à ces emplacements pour éviter un nouveau téléchargement.
+If you already have these files (for ComfyUI, for instance), copy or link them to these locations to avoid downloading them again.
 
-## Utilisation
+## Usage
 
-### Texte vers image
+### Text to image
 
-Écrivez un prompt en langage naturel, en anglais ou en chinois, puis lancez la génération. Les réglages par défaut sont ceux pour lesquels le modèle a été distillé : **8 étapes** et **Embedded Guidance 2,5**.
+Write a natural-language prompt, in English or Chinese, and generate. The default settings are the ones the model was distilled with: **8 steps** and **Embedded Guidance 2.5**.
 
-**Taille d'image.** Le modèle a été entraîné autour de 1 mégapixel. La liste *Resolution* propose ses 37 formats natifs, de 2048×512 à 512×2048. Les tailles personnalisées jusqu'à environ 1536×1536 fonctionnent. Au-delà, l'image se dégrade : générez en 1024 puis agrandissez avec le post-traitement de WanGP.
+**Image size.** The model was trained around 1 megapixel. The *Resolution* list offers its 37 native sizes, from 2048×512 to 512×2048. Custom sizes up to about 1536×1536 work. Beyond that the image degrades: generate at 1024, then upscale with WanGP's post-processing.
 
-### Édition et fusion avec des images de référence
+### Editing and fusion with Reference Images
 
-Dans le sélecteur **Reference Images**, choisissez :
+In the **Reference Images** selector, choose:
 
-- **First one is the image to edit** (`KI`) : la première image est celle à modifier, et la taille de sortie suit ses proportions. C'est le mode à utiliser pour l'édition.
-- **Free composition** (`I`) : les images servent de références, et la taille de sortie est celle choisie dans *Resolution*.
+- **First one is the image to edit** (`KI`): the first image is the one to modify, and the output size follows its aspect ratio. Use this mode for editing.
+- **Free composition** (`I`): the images act as references, and the output size is the one chosen in *Resolution*.
 
-Ajoutez **1 à 3 images** dans la fenêtre de références. Dans le prompt, désignez-les par leur ordre : « Mets le chat de la première image sur le canapé de la deuxième image ». Précisez aussi ce qui ne doit pas changer.
+Add **1 to 3 images** in the reference window. In the prompt, refer to them by order: "Put the cat from the first image on the sofa in the second image". Also state what must not change.
 
-Chaque image est redimensionnée à environ 1 Mpx, comme le fait le pipeline de Tencent. Chaque image supplémentaire ralentit chaque étape.
+Each image is resized to about 1 Mpx, as Tencent's pipeline does. Each extra image makes every step slower.
 
-**Conseil :** si une édition paraît trop saturée ou « cuite », changez de seed. Réutiliser la seed qui a produit l'image d'entrée pousse le résultat trop loin.
+**Tip:** if an edit looks oversaturated or "overbaked", change the seed. Reusing the seed that produced the input image pushes the result too far.
 
-### Options supplémentaires (sous le prompt)
+### Extra options (below the prompt)
 
-Les trois premières options ne s'affichent que lorsque des images de référence sont actives.
+The first three options only show when Reference Images are active.
 
-| Option | Effet |
+| Option | Effect |
 |---|---|
-| Reference Vision Strength | poids des tokens de la tour de vision SigLIP2 (1,0 = comportement de référence) |
-| Reference Latent Strength | poids des latents VAE des références (1,0 = référence) |
-| Vision Tokens Padding | complète chaque image à 1024 tokens de vision, comme le processeur de référence (par défaut). « Image patches only » reproduit l'ancien comportement du pack ComfyUI |
-| Custom System Prompt | remplace le prompt système intégré du modèle. Laissez vide dans la plupart des cas |
+| Reference Vision Strength | weight of the SigLIP2 vision tower tokens (1.0 = reference behaviour) |
+| Reference Latent Strength | weight of the references' VAE latents (1.0 = reference) |
+| Vision Tokens Padding | pads each image to 1024 vision tokens, as the reference processor does (default). "Image patches only" reproduces the ComfyUI pack's earlier behaviour |
+| Custom System Prompt | replaces the model's built-in system prompt. Leave it empty in most cases |
 
-### Mode avancé
+### Advanced Mode
 
-- **General** : seed, nombre d'étapes, *Embedded Guidance Scale*. La guidance de ce modèle est un token d'entrée, pas du CFG : il n'y a pas de passe négative, donc pas de prompt négatif. Gardez 8 étapes, car d'autres valeurs s'éloignent de la trajectoire distillée.
-- **LoRAs** : dossier `loras/hunyuan_image_3/`. Les LoRA s'appliquent aux couches denses (attention et expert partagé), pas aux experts routés quantifiés.
-- **Post Processing / Misc.** : toutes les options standard de WanGP (upscaling, film grain, etc.).
-- **Presets** : *Instruct-Distil Reference Settings* rétablit les réglages d'origine.
+- **General**: seed, number of steps, *Embedded Guidance Scale*. This model's guidance is an input token, not CFG: there is no negative pass, hence no negative prompt. Keep 8 steps, as other values drift from the distilled trajectory.
+- **LoRAs**: folder `loras/hunyuan_image_3/`. LoRAs apply to the dense layers (attention and shared expert), not to the quantized routed experts.
+- **Post Processing / Misc.**: all of WanGP's standard options (upscaling, film grain, etc.).
+- **Presets**: *Instruct-Distil Reference Settings* restores the original settings.
 
-L'aperçu pendant le débruitage est une projection approximative (3 composantes principales du latent). Les couleurs ne sont pas réelles, mais la composition est visible.
+The preview during denoising is an approximate projection (3 principal components of the latent). The colors are not real, but the composition is visible.
 
-## Profils mémoire
+## Memory profiles
 
-Utilisez un profil qui garde le transformer en RAM et le charge couche par couche (profils 2, 4 ou 5 si la RAM est juste, profil 3 si vous avez beaucoup de RAM).
+Use a profile that keeps the transformer in RAM and loads it layer by layer (profiles 2, 4 or 5 when RAM is tight, profile 3 if you have plenty of RAM). If WanGP reports that reserved RAM is short, raising `perc_reserved_mem_max` in the configuration pins more blocks and speeds up the steps.
 
-Pour le VAE, WanGP choisit automatiquement le tuilage selon la VRAM (option *VAE Tiling* de la configuration). En cas de manque de mémoire, le décodage repasse automatiquement en tuiles de 512 puis de 256 pixels.
+For the VAE, WanGP picks tiling automatically from the VRAM size (the *VAE Tiling* option in the configuration). When memory runs out, decoding automatically falls back to 512-pixel tiles, then 256-pixel tiles.
 
-## Détails techniques
+## Technical details
 
-Ces informations sont utiles pour la maintenance.
+This information is useful for maintenance.
 
-**Poids W4A8.** Le format est celui de `comfy_kitchen` (`AsymW4A8Int8Layout`) : codes 4 bits Lloyd-Max, échelles fp8 par groupe de 16, échelles fp32 par ligne, rotation ConvRot (Hadamard 256).
-- Les projections denses passent par le handler W4A8 natif de WanGP (`shared/qtypes/asym_w4a8_int8.py`).
-- Les 64 experts de chaque couche sont stockés en banques 3D. Ils sont gérés par `models/hy3_experts.py`, qui réutilise les mêmes kernels (décodage Triton et GEMM int8) expert par expert.
-- Le fichier stocke les échelles fp8 en `uint8`. Le plugin les réinterprète au chargement, dans `preprocess_w4a8_state_dict`.
+**W4A8 weights.** The format is `comfy_kitchen`'s (`AsymW4A8Int8Layout`): 4-bit Lloyd-Max codes, fp8 scales per group of 16, fp32 scales per row, ConvRot rotation (Hadamard 256).
+- The dense projections go through WanGP's native W4A8 handler (`shared/qtypes/asym_w4a8_int8.py`).
+- The 64 experts of each layer are stored as 3-D banks. They are handled by `models/hy3_experts.py`, which reuses the same kernels (Triton decode and int8 GEMM) one expert at a time.
+- The file stores the fp8 scales as `uint8`. The plugin reinterprets them at load time, in `preprocess_w4a8_state_dict`.
 
-**Échantillonnage.** Flow matching avec shift 3, Euler en fp32, `<timestep_r>` (meanflow) égal au sigma suivant, guidance égale à 2,5 × 1000 passée en embedding.
+**Sampling.** Flow matching with shift 3, Euler in fp32, `<timestep_r>` (meanflow) set to the next sigma, guidance of 2.5 × 1000 passed as an embedding.
 
-**Séquence.** La séquence complète est recalculée à chaque étape, sans cache KV. Le résultat est identique au pipeline de référence, car tout ce qui précède le bloc image est causal.
+**Sequence.** The full sequence is recomputed at every step, with no KV cache. The result is identical to the reference pipeline, because everything ahead of the image block is causal.
 
-**Écart volontaire par rapport au pack ComfyUI.** Dans le bloc d'attention du VAE, l'aplatissement `b c f h w -> b 1 (f h w) c` suit le `rearrange` de la référence Tencent (permutation des canaux). Le pack ComfyUI faisait un simple `reshape`.
+**Deliberate difference from the ComfyUI pack.** In the VAE attention block, the `b c f h w -> b 1 (f h w) c` flattening follows the `rearrange` of Tencent's reference (channels permuted). The ComfyUI pack uses a plain `reshape`.
 
-**Code dérivé de ComfyUI-HunyuanImage3.** `models/hy3_tokenizer.py` et `models/hy3_system_prompt.py` sont repris tels quels. `hy3_model.py` et `hy3_vae.py` sont adaptés de `model.py`, `pipeline.py` et `vae.py` du même pack.
+**Code derived from ComfyUI-HunyuanImage3.** `models/hy3_tokenizer.py` and `models/hy3_system_prompt.py` are taken as is. `hy3_model.py` and `hy3_vae.py` are adapted from the same pack's `model.py`, `pipeline.py` and `vae.py`.
 
-## Dépannage
+## Troubleshooting
 
-- **Images bruitées ou incohérentes** : revenez à 8 étapes et à une Embedded Guidance de 2,5.
-- **Out of memory côté RAM** : fermez d'autres applications ou choisissez un profil mémoire qui épingle moins de RAM.
-- **« at most 3 Reference Images »** : le modèle n'accepte pas plus de 3 références.
-- **« needs N positions … handles 22800 »** : la séquence est trop longue. Réduisez la résolution, le nombre de références ou la longueur du prompt.
-- **Le modèle n'apparaît pas** : vérifiez que le plugin est activé et que WanGP a été redémarré. La console doit afficher `[PluginManager] Loaded model plugin: HunyuanImage 3.0 Instruct-Distil`.
+- **Noisy or incoherent images**: go back to 8 steps and an Embedded Guidance of 2.5.
+- **Out of memory on the RAM side**: close other applications or pick a memory profile that pins less RAM.
+- **"at most 3 Reference Images"**: the model does not accept more than 3 references.
+- **"needs N positions … handles 22800"**: the sequence is too long. Reduce the resolution, the number of references or the prompt length.
+- **The model does not appear**: check that the plugin is enabled and that WanGP was restarted. The console should show `[PluginManager] Loaded model plugin: HunyuanImage 3.0 Instruct-Distil`.
 
-## Licences
+## Licenses
 
-- **Code du plugin** : GPL-3.0 (voir `LICENSE`), comme le pack ComfyUI dont il est dérivé (© 2026 PedroMarinhoDev, modifié pour WanGP). Des parties du modèle, du VAE et du tokenizer viennent de l'implémentation de référence de Tencent et restent soumises à la Tencent Hunyuan Community License.
-- **Poids, `config.json` et `tokenizer.json`** : [Tencent Hunyuan Community License](LICENSE-TENCENT-HUNYUAN). **Cette licence ne s'applique pas dans l'Union européenne, au Royaume-Uni ni en Corée du Sud** : elle n'accorde aucun droit d'usage sur ces territoires. Elle inclut aussi une politique d'usage acceptable. Voir `NOTICE`.
+- **Plugin code**: GPL-3.0 (see `LICENSE`), like the ComfyUI pack it is derived from (© 2026 PedroMarinhoDev, modified for WanGP). Parts of the model, VAE and tokenizer come from Tencent's reference implementation and remain subject to the Tencent Hunyuan Community License.
+- **Weights, `config.json` and `tokenizer.json`**: [Tencent Hunyuan Community License](LICENSE-TENCENT-HUNYUAN). **This license does not apply in the European Union, the United Kingdom or South Korea**: it grants no usage rights in those territories. It also includes an Acceptable Use Policy. See `NOTICE`.
 
-## Crédits
+## Credits
 
-- [Tencent Hunyuan](https://github.com/Tencent-Hunyuan/HunyuanImage-3.0) pour HunyuanImage-3.0.
-- [PedroMarinhoDev](https://github.com/PedroMarinhoDev/ComfyUI-HunyuanImage3) pour le portage ComfyUI, les poids W4A8 et les fichiers convertis.
-- [Comfy-Org comfy_kitchen](https://github.com/Comfy-Org) pour le format W4A8 ConvRot.
-- [DeepBeepMeep / WanGP](https://github.com/deepbeepmeep/Wan2GP) et mmgp.
+- [Tencent Hunyuan](https://github.com/Tencent-Hunyuan/HunyuanImage-3.0) for HunyuanImage-3.0.
+- [PedroMarinhoDev](https://github.com/PedroMarinhoDev/ComfyUI-HunyuanImage3) for the ComfyUI port, the W4A8 weights and the converted files.
+- [Comfy-Org comfy_kitchen](https://github.com/Comfy-Org) for the W4A8 ConvRot format.
+- [DeepBeepMeep / WanGP](https://github.com/deepbeepmeep/Wan2GP) and mmgp.
